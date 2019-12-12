@@ -1,0 +1,4 @@
+<dependency xmlns="urn:jboss:dependency:1.0">
+	<item whenRequired="Real" dependentState="Installed">MAPSS7Service</item>
+	<item whenRequired="Real" dependentState="Installed">MAPSS7Service2</item>
+</dependency>

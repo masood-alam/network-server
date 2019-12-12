@@ -83,10 +83,13 @@
 
 	<property name="hlr.release" value="1.0" />
 	<property name="hlr.download.url" value="https://github.com/masood-alam/hlr-server/archive/${hlr.release}.zip" />
-
- 	<property name="hlr.package.name" value="hlr-${hlr.release}" />
-
+ 	<property name="hlr.package.name" value="hlr-server-${hlr.release}" />
 	<property name="hlr.distro.zip.path" value="${checkout.dir}/${hlr.package.name}.zip" />
+
+	<property name="msc.release" value="1.0" />
+	<property name="msc.download.url" value="https://github.com/masood-alam/msc-server/archive/${msc.release}.zip" />
+ 	<property name="msc.package.name" value="msc-server-${msc.release}" />
+	<property name="msc.distro.zip.path" value="${checkout.dir}/${msc.package.name}.zip" />
 
 
 	<taskdef onerror="fail" resource="net/sf/antcontrib/antlib.xml">
@@ -252,10 +255,19 @@
  	<target name="build-restcomm-jss7" description="">
 
                 <exec failonerror="true" executable="${mvn.executable}" dir="${checkout.dir}/${restcomm-jss7.package.name}">
-                        <arg line="package -Dmaven.test.skip=true -Drelease.dir=${release.dir} -Djboss.home=${jboss.home} -Djboss.path=../../${jboss.home.relative.path}" />
+                        <arg line="install -Dmaven.test.skip=true -Pdeploy-module-jboss5 -Drelease.dir=${release.dir} -Djboss.home=${jboss.home} -Djboss.path=../../${jboss.home.relative.path}" />
                 </exec>
         </target>
 
+
+	<target name="copy-ss7-beans" description="">
+		<copy file="./jss7-jboss-beans.xml" tofile="${jboss.home}/server/default/deploy/restcomm-ss7-service/META-INF/jboss-beans.xml" overwrite="true" />
+		<chmod perm="+x">
+			<fileset dir="${jboss.home}/bin">
+				<include name="*.sh"/>
+			</fileset>
+		</chmod>
+	</target>
 
  	<target name="install-restcomm-jss7-oam" description="">
 
@@ -320,6 +332,10 @@
 	</target>
 
 	<target name="build-slee-ss7" description="">
+
+		<copy file="./deploy-config.xml" tofile="${checkout.dir}/${jain-slee.ss7.package.name}/resources/map/du/src/main/resources/META-INF/deploy-config.xml" overwrite="true" />
+		<copy file="./jboss-dependency.xml" tofile="${checkout.dir}/${jain-slee.ss7.package.name}/resources/map/du/src/main/resources/META-INF/jboss-dependency.xml" overwrite="true" />
+
 		<exec failonerror="true" executable="${mvn.executable}" dir="${checkout.dir}/${jain-slee.ss7.package.name}/resources/map">
 			<arg line="install -Dmaven.test.skip=true -Drelease.dir=${release.dir} -Djboss.home=${jboss.home} -Djboss.path=../../${jboss.home.relative.path}" />
 		</exec>
@@ -353,7 +369,34 @@
 	</target>
 
 
-	<target name="release" depends="get-jboss,unzip-jboss,get-jolokia,get-slee,unzip-slee,build-slee,build-slee-tools,get-restcomm-jss7,unzip-restcomm-jss7,install-restcomm-jss7-mgmt,install-restcomm-jss7-oam,get-dpklnx,unzip-dpklnx,install-gctapi,get-jmxtools,install-jmxtools,get-http,unzip-http,build-http,get-slee-ss7,unzip-slee-ss7,build-slee-ss7,get-hlr,unzip-hlr,build-hlr">
+	<available file="${msc.distro.zip.path}" property="got.msc" />
+	<target name="get-msc" unless="got.msc">
+		<echo>Downloading Msc-Server</echo>
+	<!--	<get dest="${ant.file.restcomm.release}/../${jain-slee.http.distro.zip.path}" src="${jain-slee.http.download.url}" />  -->
+		<exec failonerror="true" executable="wget">
+		    <arg value="${msc.download.url}" />
+		    <arg value="--output-document=${msc.distro.zip.path}" />
+		</exec>
+	<!--	<move file="./gmlc.zip" todir="${checkout.dir}"/>  -->
+	</target>
+
+	<target name="unzip-msc">
+		<delete dir="${checkout.dir}/${msc.package.name}" failonerror="false" />
+		<unzip src="${msc.distro.zip.path}" dest="${checkout.dir}" />
+	</target>
+
+
+	<target name="build-msc" description="">
+		<exec failonerror="true" executable="${mvn.executable}" dir="${checkout.dir}/${msc.package.name}/core">
+			<arg line="install -Dmaven.test.skip=true -Drelease.dir=${release.dir} -Djboss.home=${jboss.home} -Djboss.path=../../${jboss.home.relative.path}" />
+		</exec>
+
+	</target>
+
+
+
+
+	<target name="release" depends="get-jboss,unzip-jboss,get-jolokia,get-slee,unzip-slee,build-slee,build-slee-tools,get-restcomm-jss7,unzip-restcomm-jss7,build-restcomm-jss7,copy-ss7-beans,install-restcomm-jss7-mgmt,install-restcomm-jss7-oam,get-dpklnx,unzip-dpklnx,install-gctapi,get-jmxtools,install-jmxtools,get-http,unzip-http,build-http,get-slee-ss7,unzip-slee-ss7,build-slee-ss7,get-hlr,unzip-hlr,build-hlr,get-msc,unzip-msc,build-msc">
 
 		<!-- copy log4j presets -->
 		<copy file="${jboss.home}/server/default/deploy/restcomm-slee/log4j-templates/jboss-log4j.xml.default" tofile="${jboss.home}/server/default/conf/jboss-log4j.xml" overwrite="true" />
