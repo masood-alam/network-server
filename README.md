@@ -12,6 +12,8 @@ Dependencies
 1. Java 7 runtime environment
 2. Apache maven (3.3.9 or above)
 3. Apache ant (1.8 or above)
+4. HLR Server [Hlr Server] (https://github.com/masood-alam/hlr-server)
+5. MSC Server [Msc Server] (https://github.com/masood-alam/msc-server)
 
 
 *Installation*
