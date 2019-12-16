@@ -75,7 +75,9 @@
 	<property name="jain-slee.ss7.release" value="2.8.31" />
 	<property name="jain-slee.ss7.download.distro.name" value="${jain-slee.ss7.release}" />
 	<property name="jain-slee.ss7.download.distro.file" value="${jain-slee.ss7.release}.zip" />
-	<property name="jain-slee.ss7.download.url" value="${github2.url}/jain-slee.ss7/zip/${jain-slee.ss7.download.distro.name}" />
+<!--	<property name="jain-slee.ss7.download.url" value="${github2.url}/jain-slee.ss7/zip/${jain-slee.ss7.download.distro.name}" /> -->
+	<property name="jain-slee.ss7.download.url" value="https://github.com/masood-alam/jain-slee.ss7/archive/${jain-slee.ss7.release}.zip" />
+
 	<property name="jain-slee.ss7.distro.zip.path" value="${checkout.dir}/jain-slee.ss7-${jain-slee.ss7.download.distro.file}" />
 
  	<property name="jain-slee.ss7.package.name" value="jain-slee.ss7-${jain-slee.ss7.release}" />
@@ -413,8 +415,8 @@
 			<param name="zip.filename" value="${release.profile}-nw-${release.version}.zip" />
 			<param name="jboss.home" value="${jboss.home}" />
 		</antcall>
-		<delete dir="${jboss.home}" failonerror="true" />
-		<antcall target="clean" />
+		<!--<delete dir="${jboss.home}" failonerror="true" /> 
+		<antcall target="clean" />  -->
 	</target>
 
 	<target name="clean">
