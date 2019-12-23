@@ -83,6 +83,15 @@
  	<property name="jain-slee.ss7.package.name" value="jain-slee.ss7-${jain-slee.ss7.release}" />
 
 
+	<property name="racap.release" value="7.1.57" />
+	<property name="racap.download.distro.name" value="${racap.release}" />
+	<property name="racap.download.distro.file" value="${racap.release}.zip" />
+	<property name="racap.download.url" value="${github.url}/jain-slee.ss7/archive/${racap.release}.zip" />
+	<property name="racap.distro.zip.path" value="${checkout.dir}/jain-slee.ss7-${racap.download.distro.file}" />
+ 	<property name="racap.package.name" value="jain-slee.ss7-${racap.release}" />
+
+
+
 	<property name="hlr.release" value="1.0" />
 	<property name="hlr.download.url" value="https://github.com/masood-alam/hlr-server/archive/${hlr.release}.zip" />
  	<property name="hlr.package.name" value="hlr-server-${hlr.release}" />
@@ -92,6 +101,13 @@
 	<property name="msc.download.url" value="https://github.com/masood-alam/msc-server/archive/${msc.release}.zip" />
  	<property name="msc.package.name" value="msc-server-${msc.release}" />
 	<property name="msc.distro.zip.path" value="${checkout.dir}/${msc.package.name}.zip" />
+
+
+	<property name="sspserver.release" value="1.0" />
+	<property name="sspserver.download.url" value="https://github.com/masood-alam/sspserver/archive/${sspserver.release}.zip" />
+ 	<property name="sspserver.package.name" value="sspserver-${sspserver.release}" />
+	<property name="sspserver.distro.zip.path" value="${checkout.dir}/${sspserver.package.name}.zip" />
+
 
 
 	<taskdef onerror="fail" resource="net/sf/antcontrib/antlib.xml">
@@ -345,6 +361,38 @@
 
 
 
+
+
+	<available file="${racap.distro.zip.path}" property="got.racap" />
+	<target name="get-racap" unless="got.racap">
+		<echo>Downloading Jain-slee.ss7 for cap</echo>
+	<!--	<get dest="${ant.file.restcomm.release}/../${jain-slee.http.distro.zip.path}" src="${jain-slee.http.download.url}" />  -->
+		<exec failonerror="true" executable="wget">
+		    <arg value="${racap.download.url}" />
+		    <arg value="--output-document=${racap.distro.zip.path}" />
+		</exec>
+	</target>
+
+
+	<target name="unzip-racap">
+		<delete dir="${checkout.dir}/${racap.package.name}" failonerror="false" />
+		<unzip src="${racap.distro.zip.path}" dest="${checkout.dir}" />
+	</target>
+
+	<target name="build-racap" description="">
+
+
+		<exec failonerror="true" executable="${mvn.executable}" dir="${checkout.dir}/${racap.package.name}/resources/cap">
+			<arg line="install -Dmaven.test.skip=true -Drelease.dir=${release.dir} -Djboss.home=${jboss.home} -Djboss.path=../../${jboss.home.relative.path}" />
+		</exec>
+	</target>
+
+
+
+
+
+
+
 	<available file="${hlr.distro.zip.path}" property="got.hlr" />
 	<target name="get-hlr" unless="got.hlr">
 		<echo>Downloading Hlr-Server</echo>
@@ -398,7 +446,35 @@
 
 
 
-	<target name="release" depends="get-jboss,unzip-jboss,get-jolokia,get-slee,unzip-slee,build-slee,build-slee-tools,get-restcomm-jss7,unzip-restcomm-jss7,build-restcomm-jss7,copy-ss7-beans,install-restcomm-jss7-mgmt,install-restcomm-jss7-oam,get-dpklnx,unzip-dpklnx,install-gctapi,get-jmxtools,install-jmxtools,get-http,unzip-http,build-http,get-slee-ss7,unzip-slee-ss7,build-slee-ss7,get-hlr,unzip-hlr,build-hlr,get-msc,unzip-msc,build-msc">
+	<available file="${sspserver.distro.zip.path}" property="got.sspserver" />
+	<target name="get-sspserver" unless="got.sspserver">
+		<echo>Downloading SspServer</echo>
+	<!--	<get dest="${ant.file.restcomm.release}/../${jain-slee.http.distro.zip.path}" src="${jain-slee.http.download.url}" />  -->
+		<exec failonerror="true" executable="wget">
+		    <arg value="${sspserver.download.url}" />
+		    <arg value="--output-document=${sspserver.distro.zip.path}" />
+		</exec>
+	<!--	<move file="./gmlc.zip" todir="${checkout.dir}"/>  -->
+	</target>
+
+	<target name="unzip-sspserver">
+		<delete dir="${checkout.dir}/${sspserver.package.name}" failonerror="false" />
+		<unzip src="${sspserver.distro.zip.path}" dest="${checkout.dir}" />
+	</target>
+
+
+	<target name="build-sspserver" description="">
+		<exec failonerror="true" executable="${mvn.executable}" dir="${checkout.dir}/${sspserver.package.name}">
+			<arg line="install -Dmaven.test.skip=true -Drelease.dir=${release.dir} -Djboss.home=${jboss.home} -Djboss.path=../../${jboss.home.relative.path}" />
+		</exec>
+
+	</target>
+
+
+
+
+
+	<target name="release" depends="get-jboss,unzip-jboss,get-jolokia,get-slee,unzip-slee,build-slee,build-slee-tools,get-restcomm-jss7,unzip-restcomm-jss7,build-restcomm-jss7,copy-ss7-beans,install-restcomm-jss7-mgmt,install-restcomm-jss7-oam,get-dpklnx,unzip-dpklnx,install-gctapi,get-jmxtools,install-jmxtools,get-http,unzip-http,build-http,get-slee-ss7,unzip-slee-ss7,build-slee-ss7,get-hlr,unzip-hlr,build-hlr,get-msc,unzip-msc,build-msc,get-racap,unzip-racap,build-racap">
 
 		<!-- copy log4j presets -->
 		<copy file="${jboss.home}/server/default/deploy/restcomm-slee/log4j-templates/jboss-log4j.xml.default" tofile="${jboss.home}/server/default/conf/jboss-log4j.xml" overwrite="true" />
